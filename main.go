@@ -32,5 +32,5 @@ func hello(w http.ResponseWriter, _ *http.Request) {
 
 func main() {
 	generateTLSCert()
-	http3.ListenAndServe("localhost:4242", "cert.pem", "key.pem", http.HandlerFunc(hello))
+	http3.ListenAndServe("0.0.0.0:4242", "cert.pem", "key.pem", http.HandlerFunc(hello))
 }
