@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"math/big"
 	"net/http"
@@ -12,6 +13,22 @@ import (
 
 	"github.com/lucas-clemente/quic-go/http3"
 )
+
+func isCertExists() bool {
+	fileCert, errCert := os.Open("cert.pem")
+	fileCert.Close()
+	if errors.Is(errCert, os.ErrNotExist) {
+		return false
+	}
+
+	fileKey, errKey := os.Open("key.pem")
+	fileKey.Close()
+	if errors.Is(errKey, os.ErrNotExist) {
+		return false
+	}
+
+	return true
+}
 
 func generateTLSCert() {
 	key, _ := rsa.GenerateKey(rand.Reader, 1024)
@@ -31,6 +48,8 @@ func hello(w http.ResponseWriter, _ *http.Request) {
 }
 
 func main() {
-	generateTLSCert()
+	if !isCertExists() {
+		generateTLSCert()
+	}
 	http3.ListenAndServe("0.0.0.0:4242", "cert.pem", "key.pem", http.HandlerFunc(hello))
 }
